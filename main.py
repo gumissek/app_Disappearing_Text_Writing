@@ -10,7 +10,7 @@ PREVIOUS_TEXT = ''
 
 
 def reset_timer():
-    if TIMER != None:
+    if TIMER is not None:
         window.after_cancel(TIMER)
 
 
