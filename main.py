@@ -1,50 +1,66 @@
-# todo zrobic strone glowna flask
-# strona glowna ktora zawiera przycisk start i to co zostalo napisane
-# strona glowna
-import time
+from tkinter import *
 
-# todo zrobic strone gry
-# strona zawiera tytul , licznik czasu, pole na tekst
-# pelta ktora porownuje to co jest napisane w inpucie z tym co jest w zapisane
-# jesli   jest takie samo to odpala licznik na 10 sekund
-# jesli nie jest takie samo to zeruje licznik
-# jesli czas sie skonczy to wyrzuca na glowna strone z przyciskiem start i pokazuje to co zostalo napisane, czysci liste
-
-from flask import Flask, render_template, url_for, request, redirect
-from flask_bootstrap import Bootstrap5
-from forms import AddWordForm
-
-app = Flask(__name__)
-app.config['SECRET_KEY'] = '123123'
-bootstrap = Bootstrap5(app)
-
-STORY_POPRZEDNIE = 'start'
-STORY_TERAZ = ''
-TIME = 10
+STORY = ''
+TIMER_COUNTER = 10
+TIMER = None
 
 
 
-@app.route('/')
-def home():
-    return render_template('start.html')
-
-
-@app.route('/game', methods=['POST', 'GET'])
-def game():
-    print(TIME)
-    while TIME > 0:
-        global STORY_POPRZEDNIE
-        global STORY_TERAZ
-        add_form = AddWordForm(word='')
-        if add_form.validate_on_submit():
-            STORY_POPRZEDNIE = STORY_TERAZ
-            STORY_TERAZ = f'{request.form['statement']}'
-            return redirect(url_for('game'))
-        return render_template('game.html', form=add_form, story_previous=STORY_POPRZEDNIE, story_now=STORY_TERAZ,
-                               time_left=TIME)
+def timer(time):
+    global TIMER
+    if time > 0:
+        canva.itemconfig(time_text, text=time)
+        TIMER = window.after(1000, timer, time - 1)
+        if not check():
+            reset_timer()
+            timer(TIMER_COUNTER)
+        set_story()
     else:
-        return redirect(url_for('home'))
+        canva.itemconfig(time_text, text='Czas koniec')
+        text_area.delete(0, 'end')
 
 
-if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+def reset_timer():
+    if TIMER != None:
+        window.after_cancel(TIMER)
+
+
+def check():
+    if text_area.get() == STORY:
+        canva.itemconfig(message, text='to samo co porzednio')
+        return True
+    else:
+        canva.itemconfig(message, text='inne')
+        reset_timer()
+        return False
+
+
+
+
+def set_story():
+    global STORY
+    STORY = text_area.get()
+
+
+def start():
+    timer(TIMER_COUNTER)
+
+
+window = Tk()
+window.title('teskt')
+window.config(padx=30, pady=30)
+
+canva = Canvas(width=500, height=200, background='lightyellow')
+canva.config(highlightthickness=0)
+time_label = canva.create_text(220, 100, text='Time: ')
+time_text = canva.create_text(250, 100, text='0')
+message = canva.create_text(250, 70)
+canva.pack()
+text_area = Entry()
+text_area.pack()
+button_start = Button(text='Rozpocznij', command=start)
+button_start.pack()
+
+# window.bind('<Return>',check)
+
+window.mainloop()
