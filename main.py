@@ -2,22 +2,28 @@ from tkinter import *
 
 STORY = ''
 TIMER_COUNTER = 10
+TIME_LEFT=TIMER_COUNTER
 TIMER = None
 
+
+#ogarnc jak dziala ten timer zeby sprawdzalo w petli
 
 
 def timer(time):
     global TIMER
+    global TIME_LEFT
     if time > 0:
+        TIME_LEFT = time
         canva.itemconfig(time_text, text=time)
+        check()
         TIMER = window.after(1000, timer, time - 1)
-        if not check():
-            reset_timer()
-            timer(TIMER_COUNTER)
-        set_story()
+
+
     else:
         canva.itemconfig(time_text, text='Czas koniec')
         text_area.delete(0, 'end')
+        reset_timer()
+
 
 
 def reset_timer():
@@ -28,11 +34,14 @@ def reset_timer():
 def check():
     if text_area.get() == STORY:
         canva.itemconfig(message, text='to samo co porzednio')
-        return True
+        set_story()
+        # return True
     else:
         canva.itemconfig(message, text='inne')
+        set_story()
         reset_timer()
-        return False
+        timer(TIMER_COUNTER)
+        # return False
 
 
 
@@ -43,7 +52,11 @@ def set_story():
 
 
 def start():
+    reset_timer()
     timer(TIMER_COUNTER)
+
+
+
 
 
 window = Tk()
